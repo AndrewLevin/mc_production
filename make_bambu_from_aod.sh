@@ -11,8 +11,8 @@ echo $inputfile
 echo pwd
 pwd
 
-cd /afs/cern.ch/work/a/anlevin/UserCode/mc_production/CMSSW_5_3_13_patch3/
-#cd /afs/cern.ch/work/a/anlevin/UserCode/mc_production/CMSSW_5_3_11/
+cd /afs/cern.ch/work/a/anlevin/mc_production/CMSSW_5_3_13_patch3/
+#cd /afs/cern.ch/work/a/anlevin/mc_production/CMSSW_5_3_11/
 eval `scramv1 runtime -sh`
 
 cd -
@@ -20,7 +20,7 @@ cd -
 echo pwd
 pwd
 
-cp /afs/cern.ch/work/a/anlevin/UserCode/mc_production/BAMBUProd_AODSIM.py delete_this.py
+cp /afs/cern.ch/work/a/anlevin/mc_production/BAMBUProd_AODSIM.py delete_this.py
 
 
 tmpfile=`mktemp`
@@ -39,4 +39,12 @@ outputfile=`echo $inputfile | sed "s/\//___/" | sed "s/\//___/" | sed "s/\//___/
 echo \$outputfile
 echo $outputfile
 
+if ! ls XX-MITDATASET-XX_000.root >& /dev/null
+    then
+    echo "output file was not created, exiting"
+    exit
+fi
+
 /afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select cp XX-MITDATASET-XX_000.root ${output_dir}$outputfile
+
+/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select rm $inputfile
