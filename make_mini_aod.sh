@@ -4,6 +4,7 @@ n_events=$3
 where_to_start=$4
 lumi_number=$5
 output_dir=$6
+hadron_fragment=$7
 
 echo date
 date
@@ -28,6 +29,9 @@ echo $where_to_start
 
 echo \$lumi_number
 echo $lumi_number
+
+echo \$hadron_fragment
+echo $hadron_fragment
 
 cd /afs/cern.ch/work/a/anlevin/mc_production/CMSSW_6_2_0_patch1/src/;
 eval `scramv1 runtime -sh`;
@@ -54,7 +58,7 @@ cd -;
 
 echo "begin step 2"
 
-cmsDriver.py Configuration/GenProduction/python/ThirteenTeV/Hadronizer_TuneZ2star_13TeV_generic_LHE_pythia_tauola_cff.py --filein file:step1_output.root --fileout file:step2_output.root --mc --eventcontent RAWSIM --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,Configuration/DataProcessing/Utils.addMonitoring --datatier GEN-SIM --conditions POSTLS162_V1::All --step GEN,SIM --magField 38T_PostLS1 --geometry Extended2015 --python_filename step2.py --no_exec -n -1 --customise Configuration/GenProduction/randomizeSeeds.randomizeSeeds
+cmsDriver.py $hadron_fragment --filein file:step1_output.root --fileout file:step2_output.root --mc --eventcontent RAWSIM --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,Configuration/DataProcessing/Utils.addMonitoring --datatier GEN-SIM --conditions POSTLS162_V1::All --step GEN,SIM --magField 38T_PostLS1 --geometry Extended2015 --python_filename step2.py --no_exec -n -1 --customise Configuration/GenProduction/randomizeSeeds.randomizeSeeds
 
 cmsRun step2.py
 
@@ -63,24 +67,29 @@ echo "end step 2"
 echo "ls -lh"
 ls -lh
 
-cd /afs/cern.ch/work/a/anlevin/mc_production/CMSSW_7_0_1/src;
+cd /afs/cern.ch/work/a/anlevin/mc_production/CMSSW_7_2_0/src/
 eval `scramv1 runtime -sh`;
 cd -;
 
 echo "begin step 3"
 
-cmsDriver.py step3 --filein file:step2_output.root --fileout file:step3_output.root --pileup_input file:pileup.root --mc --eventcontent RAWSIM --pileup AVE_20_BX_25ns --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,Configuration/DataProcessing/Utils.addMonitoring --datatier GEN-SIM-RAW --conditions POSTLS170_V5::All --step DIGI,L1,DIGI2RAW,HLT:2013,RAW2DIGI,L1Reco --magField 38T_PostLS1 --geometry DBExtendedPostLS1 --python_filename step3.py --no_exec -n -1 --customise Configuration/GenProduction/randomizeSeeds.randomizeSeeds
+cmsDriver.py step1 --filein file:step2_output.root --fileout file:step3_output.root --pileup_input file:pileup.root --mc --eventcontent RAWSIM --inputEventContent REGEN --pileup Phys14_50ns_PoissonOOT --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,Configuration/DataProcessing/Utils.addMonitoring --datatier GEN-SIM-RAW --conditions PHYS14_25_V1 --step GEN:fixGenInfo,DIGI,L1,DIGI2RAW,HLT:GRun --magField 38T_PostLS1 --python_filename step3.py --no_exec -n -1
+
+#cmsDriver.py step3 --filein file:step2_output.root --fileout file:step3_output.root --pileup_input file:pileup.root --mc --eventcontent RAWSIM --pileup AVE_20_BX_25ns --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,Configuration/DataProcessing/Utils.addMonitoring --datatier GEN-SIM-RAW --conditions POSTLS170_V5::All --step DIGI,L1,DIGI2RAW,HLT:2013,RAW2DIGI,L1Reco --magField 38T_PostLS1 --geometry DBExtendedPostLS1 --python_filename step3.py --no_exec -n -1 --customise Configuration/GenProduction/randomizeSeeds.randomizeSeeds
 
 cmsRun step3.py
 
 echo "end step 3"
+
 
 echo "ls -lh"
 ls -lh
 
 echo "begin step 4"
 
-cmsDriver.py step4 --filein file:step3_output.root --fileout file:step4_output.root --mc --eventcontent AODSIM --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,Configuration/DataProcessing/Utils.addMonitoring --datatier AODSIM --conditions POSTLS170_V5::All --step RAW2DIGI,L1Reco,RECO,EI --magField 38T_PostLS1 --geometry DBExtendedPostLS1 --python_filename step4.py --no_exec -n -1 --customise Configuration/GenProduction/randomizeSeeds.randomizeSeeds
+cmsDriver.py step4 --filein file:step3_output.root --fileout file:step4_output.root --mc --eventcontent AODSIM --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,Configuration/DataProcessing/Utils.addMonitoring --datatier AODSIM --conditions PHYS14_25_V1 --step RAW2DIGI,L1Reco,RECO,EI --magField 38T_PostLS1 --python_filename step4.py --no_exec -n -1
+
+#cmsDriver.py --filein file:step3_output.root --fileout file:step4_output.root --mc --eventcontent AODSIM --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,Configuration/DataProcessing/Utils.addMonitoring --datatier AODSIM --conditions POSTLS170_V5::All --step RAW2DIGI,L1Reco,RECO,EI --magField 38T_PostLS1 --geometry DBExtendedPostLS1 --python_filename step4.py --no_exec -n -1 --customise Configuration/GenProduction/randomizeSeeds.randomizeSeeds
 
 cmsRun step4.py
 
@@ -89,13 +98,15 @@ echo "end step 4"
 echo "ls -lh"
 ls -lh
 
-cd /afs/cern.ch/work/a/anlevin/mc_production/CMSSW_7_0_6_patch1/src/;
-eval `scramv1 runtime -sh`;
-cd -;
+#cd /afs/cern.ch/work/a/anlevin/mc_production/CMSSW_7_0_6_patch1/src/;
+#eval `scramv1 runtime -sh`;
+#cd -;
 
 echo "begin step 5"
 
-cmsDriver.py step5 --filein file:step4_output.root --fileout file:step5_output.root --mc --eventcontent MINIAODSIM --runUnscheduled --datatier MINIAODSIM --conditions PLS170_V7AN1::All --step PAT --python_filename step5.py --no_exec --customise Configuration/DataProcessing/Utils.addMonitoring -n -1 --customise Configuration/GenProduction/randomizeSeeds.randomizeSeeds
+cmsDriver.py step3 --filein file:step4_output.root --fileout file:step5_output.root --mc --eventcontent MINIAODSIM --runUnscheduled --datatier MINIAODSIM --conditions PHYS14_25_V1 --step PAT --python_filename step5.py --no_exec --customise Configuration/DataProcessing/Utils.addMonitoring -n -1
+
+#cmsDriver.py step5 --filein file:step4_output.root --fileout file:step5_output.root --mc --eventcontent MINIAODSIM --runUnscheduled --datatier MINIAODSIM --conditions PLS170_V7AN1::All --step PAT --python_filename step5.py --no_exec --customise Configuration/DataProcessing/Utils.addMonitoring -n -1 --customise Configuration/GenProduction/randomizeSeeds.randomizeSeeds
 
 cmsRun step5.py
 
@@ -114,7 +125,7 @@ if ! cat *py | grep  Pythia6HadronizerFilter >& /dev/null; then
     exit
 fi
 
-/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select cp step5_output.root ${output_dir}step5_output_$where_to_start.root
+/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select cp step5_output.root ${output_dir}step5_output_$where_to_start.root
 
 echo date
 date
