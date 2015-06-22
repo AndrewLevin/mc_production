@@ -33,13 +33,17 @@ echo $lumi_number
 echo \$hadron_fragment
 echo $hadron_fragment
 
-cd /afs/cern.ch/work/a/anlevin/mc_production/CMSSW_6_2_0_patch1/src/;
+#cd /afs/cern.ch/work/a/anlevin/mc_production/CMSSW_6_2_0_patch1/src/;
+#cd /afs/cern.ch/work/a/anlevin/mc_production/CMSSW_6_2_4/src;
+#cd /afs/cern.ch/work/a/anlevin/mc_production/CMSSW_7_2_0/src/
+cd /afs/cern.ch/work/a/anlevin/mc_production/CMSSW_7_1_14/src/
 eval `scramv1 runtime -sh`;
 cd -; 
 
 echo "begin step 1"
 
-cmsDriver.py step1 --filein file:$input_file --mc --eventcontent LHE --datatier GEN --conditions START62_V1::All --step NONE --python_filename step1.py --no_exec --customise Configuration/DataProcessing/Utils.addMonitoring -n $n_events --customise_commands process.source.skipEvents\ =\ cms.untracked.uint32\($where_to_start\)\\nprocess.source.firstLuminosityBlock\ =\ cms.untracked.uint32\($lumi_number\) --fileout file:step1_output.root
+#cmsDriver.py step1 --filein file:$input_file --mc --eventcontent LHE --datatier GEN --conditions START62_V1::All --step NONE --python_filename step1.py --no_exec --customise Configuration/DataProcessing/Utils.addMonitoring -n $n_events --customise_commands process.source.skipEvents\ =\ cms.untracked.uint32\($where_to_start\)\\nprocess.source.firstLuminosityBlock\ =\ cms.untracked.uint32\($lumi_number\) --fileout file:step1_output.root
+cmsDriver.py step1 --filein file:$input_file --mc --eventcontent LHE --datatier GEN --conditions PHYS14_25_V1  --step NONE --python_filename step1.py --no_exec --customise Configuration/DataProcessing/Utils.addMonitoring -n $n_events --customise_commands process.source.skipEvents\ =\ cms.untracked.uint32\($where_to_start\)\\nprocess.source.firstLuminosityBlock\ =\ cms.untracked.uint32\($lumi_number\) --fileout file:step1_output.root
 
 cmsRun step1.py
 
@@ -48,17 +52,18 @@ echo "end step 1"
 echo "ls -lh"
 ls -lh
 
-cmsDriver.py Configuration/GenProduction/python/ThirteenTeV/MinBias_13TeV_pythia8_cfi.py --mc --eventcontent RAWSIM --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1 --datatier GEN-SIM --conditions POSTLS162_V1::All --step GEN,SIM --magField 38T_PostLS1 --geometry Extended2015 --python_filename minbias.py --no_exec -n $n_events_pileup --customise Configuration/GenProduction/randomizeSeeds.randomizeSeeds --fileout file:pileup.root
+cmsDriver.py Configuration/GenProduction/python/ThirteenTeV/MinBias_Tune4C_13TeV_pythia8_cff --mc --eventcontent RAWSIM --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1 --datatier GEN-SIM --conditions PHYS14_25_V1 --step GEN,SIM --magField 38T_PostLS1 --geometry Extended2015 --python_filename minbias.py --no_exec -n $n_events_pileup --customise Configuration/GenProduction/randomizeSeeds.randomizeSeeds --fileout file:pileup.root
 
 cmsRun minbias.py
 
-cd /afs/cern.ch/work/a/anlevin/mc_production/CMSSW_6_2_4/src;
+cd /afs/cern.ch/work/a/anlevin/mc_production/CMSSW_7_2_0/src/
+#cd /afs/cern.ch/work/a/anlevin/mc_production/CMSSW_6_2_4/src;
 eval `scramv1 runtime -sh`;
 cd -;
 
 echo "begin step 2"
 
-cmsDriver.py $hadron_fragment --filein file:step1_output.root --fileout file:step2_output.root --mc --eventcontent RAWSIM --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,Configuration/DataProcessing/Utils.addMonitoring --datatier GEN-SIM --conditions POSTLS162_V1::All --step GEN,SIM --magField 38T_PostLS1 --geometry Extended2015 --python_filename step2.py --no_exec -n -1 --customise Configuration/GenProduction/randomizeSeeds.randomizeSeeds
+cmsDriver.py $hadron_fragment --filein file:step1_output.root --fileout file:step2_output.root --mc --eventcontent RAWSIM --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,Configuration/DataProcessing/Utils.addMonitoring --datatier GEN-SIM --conditions PHYS14_25_V1 --step GEN,SIM --magField 38T_PostLS1 --geometry Extended2015 --python_filename step2.py --no_exec -n -1 --customise Configuration/GenProduction/randomizeSeeds.randomizeSeeds
 
 cmsRun step2.py
 
@@ -120,7 +125,7 @@ echo ""
 
 for file in `ls | grep "\.py" | grep -v pyc`; do echo "begin dumping file $file"; echo "";  cat $file; echo ""; echo "finished dumping file $file"; done
 
-if ! cat *py | grep  Pythia6HadronizerFilter >& /dev/null; then
+if ! cat *py | grep  Pythia8HadronizerFilter >& /dev/null; then
     echo "no hadronizer in the configuration files, exiting"
     exit
 fi
