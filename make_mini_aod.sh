@@ -41,6 +41,7 @@ echo "begin step 1"
 
 cmsDriver.py $hadron_fragment --fileout file:step1_output.root --mc --eventcontent RAWSIM --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,Configuration/DataProcessing/Utils.addMonitoring --datatier GEN-SIM --inputCommands 'keep *','drop LHEXMLStringProduct_*_*_*' --conditions MCRUN2_71_V1::All --beamspot NominalCollision2015 --step GEN,SIM --magField 38T_PostLS1 --filein file:$input_file -n $n_events --customise_commands process.source.skipEvents\ =\ cms.untracked.uint32\($where_to_start\)\\nprocess.source.firstLuminosityBlock\ =\ cms.untracked.uint32\($lumi_number\);
 
+
 echo "finished step 1"
 
 cd /afs/cern.ch/work/a/anlevin/mc_production/CMSSW_7_1_13/src/
@@ -59,19 +60,23 @@ cd -;
 
 echo "begin step 2"
 
-cmsDriver.py step2 --filein file:step1_output.root --fileout file:step2_output.root --pileup_input file:pileup.root --mc --eventcontent RAWSIM --pileup 2015_25ns_Startup_PoissonOOTPU --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,Configuration/DataProcessing/Utils.addMonitoring --datatier GEN-SIM-RAW --conditions MCRUN2_74_V9 --step DIGI,L1,DIGI2RAW,HLT:@frozen25ns --magField 38T_PostLS1 -n -1
+cmsDriver.py step1 --filein file:step1_output.root --fileout file:step2_output.root --pileup_input file:pileup.root --mc --eventcontent RAWSIM --pileup 2015_25ns_Startup_PoissonOOTPU --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,Configuration/DataProcessing/Utils.addMonitoring --datatier GEN-SIM-RAW --conditions MCRUN2_74_V9 --step DIGI,L1,DIGI2RAW,HLT:@frozen25ns --magField 38T_PostLS1 -n -1; 
 
 echo "finished step 2"
 
 echo "begin step 3"
 
-cmsDriver.py step3 --filein file:step2_output.root --fileout file:step3_output.root --mc --eventcontent AODSIM,DQM --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,Configuration/DataProcessing/Utils.addMonitoring --datatier AODSIM,DQMIO --conditions MCRUN2_74_V9 --step RAW2DIGI,L1Reco,RECO,EI,DQM:DQMOfflinePOGMC --magField 38T_PostLS1 -n -1 
+cmsDriver.py step3 --filein file:step2_output.root --fileout file:step3_output.root --mc --eventcontent AODSIM,DQM --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,Configuration/DataProcessing/Utils.addMonitoring --datatier AODSIM,DQMIO --conditions MCRUN2_74_V9 --step RAW2DIGI,L1Reco,RECO,EI,DQM:DQMOfflinePOGMC --magField 38T_PostLS1 -n -1; 
 
 echo "finished step 3"
 
+cd /afs/cern.ch/work/a/anlevin/mc_production/CMSSW_7_4_14/src/
+eval `scramv1 runtime -sh`;
+cd -; 
+
 echo "begin step 4"
 
-cmsDriver.py step4 --filein file:step3_output.root --fileout file:step4_output.root --mc --eventcontent MINIAODSIM --runUnscheduled --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,Configuration/DataProcessing/Utils.addMonitoring --datatier MINIAODSIM --conditions MCRUN2_74_V9 --step PAT -n -1
+cmsDriver.py step4 --filein file:step3_output.root --fileout file:step4_output.root --mc --eventcontent MINIAODSIM --runUnscheduled --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,Configuration/DataProcessing/Utils.addMonitoring --datatier MINIAODSIM --conditions 74X_mcRun2_asymptotic_v2 --step PAT -n -1 
 
 echo "finished step 4"
 
